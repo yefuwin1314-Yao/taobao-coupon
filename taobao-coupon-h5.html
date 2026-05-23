@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>淘宝闪购 - 社群专享红包</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #E85D3F 0%, #F28C6A 40%, #F4A574 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 装饰光点 */
+    .bg-decoration {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-decoration::before,
+    .bg-decoration::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+    }
+    .bg-decoration::before {
+      width: 300px; height: 300px;
+      top: -80px; right: -60px;
+      animation: float 6s ease-in-out infinite;
+    }
+    .bg-decoration::after {
+      width: 200px; height: 200px;
+      top: 200px; left: -50px;
+      animation: float 8s ease-in-out infinite reverse;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+      50% { transform: translateY(-20px) scale(1.1); opacity: 0.3; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    /* 顶部标题 */
+    .header-title {
+      text-align: center;
+      color: rgba(255,255,255,0.95);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    /* 主标题 */
+    .main-title {
+      text-align: center;
+      color: #fff;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      margin-bottom: 8px;
+      line-height: 1.1;
+    }
+
+    .sub-title {
+      text-align: center;
+      color: #FFE4B5;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* 红包卡片 */
+    .red-packet-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 0 0 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #E85D3F, #D94E30);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 6px 24px;
+      border-radius: 0 0 12px 12px;
+      margin: 0 auto;
+      display: block;
+      width: fit-content;
+      box-shadow: 0 4px 12px rgba(232,93,63,0.3);
+    }
+
+    .card-content {
+      text-align: center;
+      padding: 20px 24px 16px;
+    }
+
+    .card-desc {
+      color: #C1440E;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .amount-wrapper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .amount-symbol {
+      color: #E85D3F;
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .amount-number {
+      color: #E85D3F;
+      font-size: 72px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(232,93,63,0.2);
+    }
+
+    .amount-badge {
+      background: linear-gradient(135deg, #E85D3F, #D94E30);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+      white-space: nowrap;
+    }
+
+    /* 红包底部装饰 */
+    .packet-bottom {
+      height: 40px;
+      background: linear-gradient(180deg, #E85D3F 0%, #C1440E 100%);
+      border-radius: 0 0 12px 12px;
+      margin: 0 16px;
+      position: relative;
+    }
+    .packet-bottom::before {
+      content: '';
+      position: absolute;
+      top: -10px; left: 0; right: 0;
+      height: 20px;
+      background: radial-gradient(ellipse at center, transparent 40%, #fff 41%);
+      background-size: 20px 20px;
+    }
+
+    /* 步骤流程 */
+    .steps-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .steps-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .step-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #E85D3F, #D94E30);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(232,93,63,0.3);
+    }
+
+    .step-label {
+      color: #666;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .step-arrow {
+      color: #E85D3F;
+      font-size: 20px;
+      font-weight: 700;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    /* 主按钮 */
+    .main-btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #FF6B35 0%, #E85D3F 50%, #D94E30 100%);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(232,93,63,0.4);
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .main-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .main-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 10px rgba(232,93,63,0.3);
+    }
+
+    .main-btn:active::after {
+      left: 100%;
+    }
+
+    /* 提示信息 */
+    .hint-text {
+      text-align: center;
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* 底部 */
+    .footer-tag {
+      text-align: center;
+      margin-top: 24px;
+    }
+    .footer-tag span {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.9);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 6px 24px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* 领取成功弹窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 20px;
+      padding: 32px 28px 24px;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+      animation: modalIn 0.3s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #52c41a, #389e0d);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #E85D3F, #D94E30);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+    }
+
+    /* 粒子效果 */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100;
+      animation: particleFall 1s ease-out forwards;
+    }
+    @keyframes particleFall {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(100px) scale(0); opacity: 0; }
+    }
+
+    /* 口令预览 */
+    .code-preview {
+      background: #FFF5F0;
+      border: 1px dashed #E85D3F;
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin: 0 16px 16px;
+      text-align: center;
+      color: #E85D3F;
+      font-size: 14px;
+      font-weight: 600;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-decoration"></div>
+
+  <div class="container">
+    <div class="header-title">— 淘宝闪购 —</div>
+    <div class="main-title">社群专享红包</div>
+
+    <!-- 红包卡片 -->
+    <div class="red-packet-card">
+      <div class="card-tag">限时专享活动</div>
+      <div class="card-content">
+        <div class="card-desc">恭喜你获得淘宝闪购专享红包</div>
+        <div class="amount-wrapper">
+          <span class="amount-symbol">¥</span>
+          <span class="amount-number">20</span>
+          <span class="amount-badge">最高</span>
+        </div>
+      </div>
+      <div class="packet-bottom"></div>
+    </div>
+
+    <!-- 步骤卡片 -->
+    <div class="steps-card">
+      <div class="steps-wrapper">
+        <div class="step-item">
+          <div class="step-icon">点击下方<br>按钮复制<br>口令</div>
+          <div class="step-label">第一步</div>
+        </div>
+        <div class="step-arrow">›››</div>
+        <div class="step-item">
+          <div class="step-icon">打开<br>淘·宝APP</div>
+          <div class="step-label">第二步</div>
+        </div>
+        <div class="step-arrow">›››</div>
+        <div class="step-item">
+          <div class="step-icon">领取叠加<br>红包</div>
+          <div class="step-label">第三步</div>
+        </div>
+      </div>
+
+      <!-- 口令预览 -->
+      <div class="code-preview" id="codePreview">¥AAABBBCCC¥</div>
+
+      <button class="main-btn" id="copyBtn" onclick="handleCopy()">
+        点击复制口令去淘宝领取
+      </button>
+    </div>
+
+    <div class="hint-text">
+      复制成功后，打开淘宝APP即可自动识别领取
+    </div>
+
+    <div class="footer-tag">
+      <span>使用方法</span>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 成功弹窗 -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal-content">
+      <div class="modal-icon">✓</div>
+      <div class="modal-title">口令复制成功</div>
+      <div class="modal-desc">
+        口令已复制到剪贴板<br>
+        请打开淘宝APP粘贴领取
+      </div>
+      <button class="modal-btn" onclick="closeModalDirect()">我知道了</button>
+    </div>
+  </div>
+
+  <script>
+    // ====== 配置区域：修改这里的口令 ======
+    const TAOBAO_CODE = '¥AAABBBCCC¥';
+    // =====================================
+
+    const codePreview = document.getElementById('codePreview');
+    codePreview.textContent = TAOBAO_CODE;
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function showModal() {
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    function closeModal(e) {
+      if (e.target === document.getElementById('modalOverlay')) {
+        document.getElementById('modalOverlay').classList.remove('show');
+      }
+    }
+
+    function closeModalDirect() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    function createParticles(x, y) {
+      const colors = ['#E85D3F', '#FF6B35', '#FFD700', '#FF8C69'];
+      for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        p.style.width = (6 + Math.random() * 8) + 'px';
+        p.style.height = p.style.width;
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.borderRadius = '50%';
+        const angle = (Math.PI * 2 * i) / 12;
+        const dist = 40 + Math.random() * 60;
+        p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        p.style.animation = `particleFall 0.8s ease-out forwards`;
+        p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+      }
+    }
+
+    async function handleCopy() {
+      const btn = document.getElementById('copyBtn');
+
+      try {
+        // 优先使用现代 Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(TAOBAO_CODE);
+        } else {
+          throw new Error('Clipboard API not available');
+        }
+      } catch (err) {
+        // 降级方案：使用 execCommand
+        const textarea = document.createElement('textarea');
+        textarea.value = TAOBAO_CODE;
+        textarea.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (!success) {
+          showToast('复制失败，请长按口令手动复制');
+          return;
+        }
+      }
+
+      // 复制成功反馈
+      const rect = btn.getBoundingClientRect();
+      createParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      showModal();
+
+      // 尝试唤起淘宝（可选）
+      setTimeout(() => {
+        // 部分环境支持唤起淘宝APP
+        const taobaoUrl = 'taobao://';
+        window.location.href = taobaoUrl;
+      }, 800);
+    }
+
+    // 页面加载动画
+    window.addEventListener('load', () => {
+      document.querySelector('.red-packet-card').style.animation = 'modalIn 0.6s ease';
+      document.querySelector('.steps-card').style.animation = 'modalIn 0.6s ease 0.2s both';
+    });
+  </script>
+</body>
+</html>
